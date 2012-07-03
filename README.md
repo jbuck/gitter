@@ -2,7 +2,7 @@
 
 The project name is gitter, with a real name to be chosen later.
 
-# Owners
+# Authors
 
 * David Humphrey
 * Jon Buckley
@@ -10,11 +10,13 @@ The project name is gitter, with a real name to be chosen later.
 
 # Description
 
-gitter is a project to build a spec, API, and client(s) for a distributed, Twitter-like messaging system using git and github as a backend.  The aim of gitter is to enable the ease of social networking without the requirement that one give up his or her control over content.  Using git and github gives more than 1 million users instant access to the gitter messaging system without creating a new account (see http://en.wikipedia.org/wiki/GitHub#Statistics).
+gitter is a project to build a spec, API, and client(s) for a distributed, Twitter-like messaging system using git and github as a backend.  The aim of gitter is to enable the ease of social networking without the requirement that one give up his or her control over content, and that communication not be driven by commercialization.  Using git and github gives more than 1 million users instant access to the gitter messaging system without creating a new account (see http://en.wikipedia.org/wiki/GitHub#Statistics), and free, open accounts for anyone not already a user.
 
 # Git/Github Backend
 
-gitter uses git as a distributed filesystem, and github.com as primary git repo host (note: other git hosts are possible without affecting the architecture).  All gitter-messages are stored as JSON strings in an empty commit.  All gitter-message commits are done to the `stream` branch in sequence.  As a result, every gitter-message is globally unique, and identifiable via a git commit sha, and includes metadata such as author, date, etc.
+gitter uses git as a distributed filesystem, and github.com as primary git repo host (note: other git hosts are possible without affecting the architecture).  All gitter-messages are stored as JSON strings in the log message of an empty commit.  All gitter-message commits are done to the `stream` branch in sequence.  As a result, every gitter-message is globally unique, and identifiable via a git commit sha, and includes metadata such as author, date, etc.
+
+It is important to emphasize that git and github are used as a backend, but the authors in no way assume users will interact with either directly.  Instead, operations on git and github will be done via clients.  However, testing and experimentation can be done without building a full client.  The architecture is described so that clients can be built.
 
 ## Users
 
@@ -22,19 +24,25 @@ Users of gitter begin by forking the `gitter` repo.  This gives them a repo with
 
 The first file contained within each `gitter` repo's master branch is `profile.json`.  The `profile.json` file contains information about the user, including things like:
 
-* First Name: David
-* Last Name Humphrey
-* Account Name: humphd
-* Preferred Nickname: humph
-* Default License for Messages: http://url.to.license (e.g., Creative Commons)
-* Email Address: david.humphrey@senecacollege.ca
-* URLs: [ "http://blog...", "http://work...", ... ]
-* Locale: en-CA
-* Time Zone: GMT-05:00
-* Bio: The person writing this...
-* etc
+    {
+      "name": {
+        "first": "David",
+        "last": "Humphrey
+      },
+      "login": "humphd",
+      "nickname": "humph",
+      "twitter": "humphd",
+      "license": "http://creativecommons.org/licenses/by-nc/3.0/",
+      "email": "david.humphrey@senecacollege.ca",
+      "urls": [
+        "http://vocamus.net/dave"
+      ],
+      "locale": "en-CA",
+      "timeZone": "GMT-05:00",
+      "bio": "Bio for David Humphrey"
+    }
 
-The `profile.json` file describes this gitter user, and indicates important hints for clients, for example the default license for all messages.
+The `profile.json` file describes a gitter user, and indicates important hints for clients, for example the default license for all messages written/published by this user.
 
 The second file contained within each `gitter` repo is `following.json`.  This file contains the list of other gitter users, and their repos, that the current user follows.  See details below on the contents and structure of this file.
 
@@ -48,7 +56,7 @@ Every gitter user has a fork of the gitter repo.  As a result, every user has a 
 
 `git://github.com/someone/gitter.git`
 
-Following a user means two things:
+Following a user means doing two things:
 
 1) adding their forked repo as a read-only remote to your gitter fork:
 
@@ -56,10 +64,9 @@ Following a user means two things:
 
 2) adding the user's repo information to `following.json` in the master branch
 
-Here the user at `git://github.com/someone/gitter.git` was added using their default github username.  However, the only thing that matters globally is the URL--we can use whatever name we want.  Unlike Twitter, G+, Facebook, etc., where two people can't share the same name, in gitter you can refer to people using any common name you want.  If I know `git://github.com/someone/gitter.git` as `dave`, I can use that shortname.  In fact, users can provide a Preferred Nickname in their `profile.json` file as a clue to clients.  In other words, we can:
+Here the user at `git://github.com/someone/gitter.git` was added using their default github username.  However, the only thing that matters globally is the URL--we can use whatever name we want.  Unlike Twitter, G+, Facebook, etc., where two people can't share the same name, in gitter you can refer to people using any common name you want.  If I know `git://github.com/someone/gitter.git` as `dave`, I can use that shortname.  In fact, users can provide a preferred `nickname` in their `profile.json` file as a clue to clients.  In other words, we can:
 
-`git remote add someone git://github.com/someone/gitter.git`
-`git mv someone <Preferred Nickname in someone's profile.json>`
+`git remote add someone git://github.com/someone/gitter.git && git mv someone <Preferred Nickname in someone's profile.json>`
 
 This means that two users can follow the same person (i.e., follow `git://github.com/someone/gitter.git`) and choose to refer to him/her with different names.  The gitter client will make sure there is no confusion internally, by always using URLs instead of short names.
 
@@ -67,10 +74,10 @@ The remotes allow git to manage internal links to other users' repos, but don't 
 
     [
       {
-        "user": "someone",
+        "user": "jbuck",
         "nickname": "jon",
         "twitter": "jbuckca",
-        "url": "git://github.com/someone/gitter.git"
+        "url": "git://github.com/jbuck/gitter.git"
       },
        {
         "user": "someone2",
@@ -97,8 +104,7 @@ A message is an escaped sequence of text.  No HTML is allowed.  Messages may be 
 
 Publishing this message involves doing an empty commit on the `stream` branch of the user's fork of the gitter repo:
 
-`git checkout stream`
-`git commit --allow-empty --message='{"text":"Writing a message in gitter!"}'`
+`git checkout stream && git commit --allow-empty --message='{"text":"Writing a message in gitter!"}'`
 
 And then pushing:
 
