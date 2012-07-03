@@ -9,7 +9,7 @@
     // and find the branch named stream.  Get the last commit
     // on the stream branch and pass to callback(), or else
     // use null if stream branch is not found.
-    $.getJSON( apiUrl, function( data ){
+    $.getJSON( apiURL, function( data ){
       data.forEach( function( branch ){
         if( branch.name === "stream" ){
           callback( branch.commit.sha );
@@ -30,7 +30,7 @@
 
       apiURL += sha;
 
-      $.getJSON( apiURL, function( data ){
+      $.getJSON( apiURL, function( commits ){
         var messages = [];
 
 /**
@@ -78,11 +78,21 @@
   }
 **/
 
-        data.forEach( function( commit ){
+        commits.forEach( function( c ){
+          var commit = c.commit,
+              author = c.author,
+              sha = c.sha;
+
           messages.push({
-            json: commit.message,
-            date: commit.author.date,
-            sha: commit.sha
+            // TODO: this could fail
+            gitterMessage: JSON.parse( commit.message ),
+            author: {
+              name: author.name,
+              login: author.login,
+              avatar: author.avatar_url
+            },
+            date: commit.commit.author.date,
+            sha: sha
           });
         });
 
