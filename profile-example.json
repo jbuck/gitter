@@ -1,0 +1,17 @@
+{
+  "name": {
+    "first": "David",
+    "last": "Humphrey
+  },
+  "login": "humphd",
+  "nickname": "humph",
+  "twitter": "humphd",
+  "license": "http://creativecommons.org/licenses/by-nc/3.0/",
+  "email": "david.humphrey@senecacollege.ca",
+  "urls": [
+    "http://vocamus.net/dave"
+  ],
+  "locale": "en-CA",
+  "timeZone": "GMT-05:00",
+  "bio": "Bio for David Humphrey"
+}
